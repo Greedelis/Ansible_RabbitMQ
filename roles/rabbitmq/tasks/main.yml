@@ -3,9 +3,9 @@
   ansible.builtin.apt:
    upgrade: true
 
-#- name: Install erlang
-#  ansible.builtin.include_role:
-#   name: erlang
+- name: Install erlang
+  ansible.builtin.include_role:
+   name: erlang
 
 - name: Add RabbitMQ Repository Key
   ansible.builtin.shell: >
@@ -42,15 +42,14 @@
    name: /oxy
    state: present
 
-- name: |-
-    Add user to server and assign full access control on / vhost.
-    The user doesn't have permission rules for other vhosts
+- name: Create test user with all permissions
   community.rabbitmq.rabbitmq_user:
    user: test
    password: "{{ test_user_pass }}"
    vhost: /oxy
    read_priv: .*
    write_priv: .*
+   configure_priv: .*
    state: present
 
 - name: Modify systemd system limits
@@ -61,6 +60,6 @@
   notify:
    - Apply kernel parameter changes
 
-- name: setup firewall
+- name: Setup firewall
   ansible.builtin.include_role:
    name: firewall

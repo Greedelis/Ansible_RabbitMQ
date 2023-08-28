@@ -1,7 +1,9 @@
-nftable_input: 
+nftable_input:
  - tcp dport ssh accept
- - drop
-nftable_forward: 
+ - tcp dport 15672 accept
+ - iif lo ip saddr 127.0.0.1 tcp dport 5672 accept
+ - tcp dport 5672 drop
+nftable_forward:
  - ""
-nftable_output: 
+nftable_output:
  - ""
