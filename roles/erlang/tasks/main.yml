@@ -1,0 +1,52 @@
+---
+- name: Update Debian packages
+  ansible.builtin.apt:
+    upgrade: true
+
+- name: Install necesery packages
+  ansible.builtin.apt:
+    name:
+      - gpg
+      - curl
+    state: present
+
+- name: Add Erlang Repository Key
+  ansible.builtin.shell: >
+   set -o pipefail; 'curl -1sLf https://ppa.novemberain.com/gpg.E495BB49CC4BBE5B.key \
+   | sudo gpg --dearmor \
+   | sudo tee /usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg > /dev/null'
+  args:
+    creates: /usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg
+
+- name: Add Erlang Repository
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] \
+     https://ppa1.novemberain.com/rabbitmq/rabbitmq-erlang/deb/debian \
+     {{ ansible_distribution_release }} main
+    state: present
+
+- name: Update APT package cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Erlang packages
+  ansible.builtin.apt:
+    name:
+      - erlang-base
+      - erlang-asn1
+      - erlang-crypto
+      - erlang-eldap
+      - erlang-ftp
+      - erlang-inets
+      - erlang-mnesia
+      - erlang-os-mon
+      - erlang-parsetools
+      - erlang-public-key
+      - erlang-runtime-tools
+      - erlang-snmp
+      - erlang-ssl
+      - erlang-syntax-tools
+      - erlang-tftp
+      - erlang-tools
+      - erlang-xmerl
+    state: present

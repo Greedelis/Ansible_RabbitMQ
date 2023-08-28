@@ -1,0 +1,23 @@
+table inet filter {
+        chain input {
+                type filter hook input priority 0; 
+                {# Loop to insert nftables rules from the nftable_input variable #}
+                {% for rule in nftable_input %}
+                {{ rule }}
+                {% endfor %}
+        }
+        chain forward {
+                type filter hook forward priority 0;
+                {# Loop to insert nftables rules from the nftable_input variable #}
+                {% for rule in nftable_forward %}
+                {{ rule }}
+                {% endfor %}
+        }
+        chain output {
+                type filter hook output priority 0;
+                {# Loop to insert nftables rules from the nftable_input variable #}
+                {% for rule in nftable_output %}
+                {{ rule }}
+                {% endfor %}
+        }
+}

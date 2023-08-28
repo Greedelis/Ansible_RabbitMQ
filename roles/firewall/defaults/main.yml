@@ -1,0 +1,7 @@
+nftable_input: 
+ - tcp dport ssh accept
+ - drop
+nftable_forward: 
+ - ""
+nftable_output: 
+ - ""

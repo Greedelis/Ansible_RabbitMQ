@@ -1,0 +1,5 @@
+nftable_input:
+ - tcp dport ssh accept
+ - tcp dport 15672 accept
+ - iif lo ip saddr 127.0.0.1 tcp dport 5672 accept
+ - tcp dport 5672 drop

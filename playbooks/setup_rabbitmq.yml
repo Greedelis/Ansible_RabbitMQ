@@ -1,0 +1,7 @@
+---
+- name: Setup RabbitMQ
+  hosts: all
+  remote_user: ansible
+  become: true
+  roles:
+    - rabbitmq

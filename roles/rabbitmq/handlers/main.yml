@@ -1,0 +1,4 @@
+---
+- name: Apply kernel parameter changes
+  ansible.builtin.command: sysctl -p
+  changed_when: "'Nothing to do' not in ansible_command_result.stdout"

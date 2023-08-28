@@ -1,0 +1,66 @@
+---
+- name: Update Debian packages
+  ansible.builtin.apt:
+   upgrade: true
+
+#- name: Install erlang
+#  ansible.builtin.include_role:
+#   name: erlang
+
+- name: Add RabbitMQ Repository Key
+  ansible.builtin.shell: >
+   set -o pipefail; 'curl -1sLf https://ppa.novemberain.com/gpg.9F4587F226208342.key \
+   | sudo gpg --dearmor \
+   | sudo tee /usr/share/keyrings/rabbitmq.9F4587F226208342.gpg > /dev/null'
+  args:
+   creates: /usr/share/keyrings/rabbitmq.9F4587F226208342.gpg
+
+- name: Add RabbitMQ Repository
+  ansible.builtin.apt_repository:
+   repo: deb [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] \
+    https://ppa1.novemberain.com/rabbitmq/rabbitmq-server/deb/debian \
+    {{ ansible_distribution_release }} main
+   state: present
+
+- name: Install RabbitMQ Server
+  ansible.builtin.apt:
+   name: rabbitmq-server
+   state: present
+
+- name: Enable the RabbitMQ admin plugin
+  community.rabbitmq.rabbitmq_plugin:
+   names: rabbitmq_management
+   state: enabled
+
+- name: Delete guest user
+  community.rabbitmq.rabbitmq_user:
+   user: guest
+   state: absent
+
+- name: Ensure that the vhost /oxy exists.
+  community.rabbitmq.rabbitmq_vhost:
+   name: /oxy
+   state: present
+
+- name: |-
+    Add user to server and assign full access control on / vhost.
+    The user doesn't have permission rules for other vhosts
+  community.rabbitmq.rabbitmq_user:
+   user: test
+   password: "{{ test_user_pass }}"
+   vhost: /oxy
+   read_priv: .*
+   write_priv: .*
+   state: present
+
+- name: Modify systemd system limits
+  ansible.builtin.lineinfile:
+   path: /etc/sysctl.conf
+   regexp: ^fs.file-max=
+   line: 'fs.file-max={{ open_files }}'  # Set your desired limit here
+  notify:
+   - Apply kernel parameter changes
+
+- name: setup firewall
+  ansible.builtin.include_role:
+   name: firewall
